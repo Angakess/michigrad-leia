@@ -11,7 +11,7 @@ def show_graph_interactive(self, filename="graph.html"):
 
     def build(v):
         if id(v) not in nodes: #Usamos el id del objeto como key
-            nodes[id(v)] = {"label": f"{v.name} | data={v.data:.2f} | grad={v.grad:.2f}", "shape": "box"}
+            nodes[id(v)] = {"label": f"{v.name} | data={v.data:.4f} | grad={v.grad:.4f}", "shape": "box"}
             if v._op: # Si tiene una operación, crea el nodo de operación
                 op_node_id = f"op_{id(v)}" #ID unico para el nodo de operacion
                 nodes[op_node_id] = {"label": v._op, "shape": "circle", "color": "lightblue", "size": 20} #Nodo de operacion
