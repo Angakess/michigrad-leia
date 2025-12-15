@@ -3,3 +3,4 @@ networkx
 pyvis
 graphviz
 torch
+pytest
