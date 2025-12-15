@@ -12,25 +12,24 @@ class Module:
 
 class Neuron(Module):
 
-    def __init__(self, nin, nonlin=True):
+    def __init__(self, nin):
         self.w = [Value(random.uniform(-1,1)) for _ in range(nin)]
         self.b = Value(0)
-        self.nonlin = nonlin
 
     def __call__(self, x):
         act = sum((wi*xi for wi,xi in zip(self.w, x)), self.b)
-        return act.relu() if self.nonlin else act
+        return act
 
     def parameters(self):
         return self.w + [self.b]
 
     def __repr__(self):
-        return f"{'ReLU' if self.nonlin else 'Linear'}Neuron({len(self.w)})"
+        return f"Neuron({len(self.w)})"
 
 class Layer(Module):
 
-    def __init__(self, nin, nout, **kwargs):
-        self.neurons = [Neuron(nin, **kwargs) for _ in range(nout)]
+    def __init__(self, nin, nout):
+        self.neurons = [Neuron(nin) for _ in range(nout)]
 
     def __call__(self, x):
         out = [n(x) for n in self.neurons]
@@ -42,11 +41,66 @@ class Layer(Module):
     def __repr__(self):
         return f"Layer of [{', '.join(str(n) for n in self.neurons)}]"
 
+
+class ReLU(Module):
+    def __call__(self, x):
+        if isinstance(x, list):
+            return [xi.relu() for xi in x]
+        return x.relu()
+
+    def __repr__(self):
+        return "ReLU"
+
+
+class Tanh(Module):
+    def __call__(self, x):
+        if isinstance(x, list):
+            return [xi.tanh() for xi in x]
+        return x.tanh()
+
+    def __repr__(self):
+        return "Tanh"
+
+
+class Sigmoid(Module):
+    def __call__(self, x):
+        if isinstance(x, list):
+            return [xi.sigmoid() for xi in x]
+        return x.sigmoid()
+
+    def __repr__(self):
+        return "Sigmoid"
+#class ReLU(Module):
+#    def __init__(self, nin, nout):
+#        self.neurons = [Neuron(nin) for _ in range(nout)]
+#    def __call__(self,x):
+#        out = [n(x).relu() for n in self.neurons]
+#        return out[0] if len(out) == 1 else out
+#    def __repr__(self):
+#        return "ReLU Layer"
+#
+#class Tanh(Module):
+#    def __init__(self, nin, nout):
+#        self.neurons = [Neuron(nin) for _ in range(nout)]
+#    def __call__(self,x):
+#        out = [n(x).tanh() for n in self.neurons]
+#        return out[0] if len(out) == 1 else out
+#    def __repr__(self):
+#        return "Tanh Layer"
+#
+#class Sigmoid(Module):
+#    def __init__(self, nin, nout):
+#        self.neurons = [Neuron(nin) for _ in range(nout)]
+#    def __call__(self,x):
+#        out = [n(x).sigmoid() for n in self.neurons]
+#        return out[0] if len(out) == 1 else out
+#    def __repr__(self):
+#        return "Sigmoid Layer"
+
 class MLP(Module):
 
-    def __init__(self, nin, nouts):
-        sz = [nin] + nouts
-        self.layers = [Layer(sz[i], sz[i+1], nonlin=i!=len(nouts)-1) for i in range(len(nouts))]
+    def __init__(self, layers):
+        self.layers = layers
 
     def __call__(self, x):
         for layer in self.layers:
